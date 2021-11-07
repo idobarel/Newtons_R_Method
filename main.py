@@ -1,14 +1,15 @@
-import sympy as sym
-import time
+#SOLVER.
 
-# The Func im using is 4*x**5-3*x-5
+# func = "x**104000-19.5*x+1"
 
-
-def get_func():
-    return str(input("Please enter the function: "))
+func = input("[?] Enter the function / equation you want to solve >> ")
 
 
-def place_X_in_func(func: str, num: float):
+def make_a_func(func):
+    pass
+
+
+def place_X_in_func(func, num: float, get_string=False):
     func = func.replace(' ', '')
     equation = ''
     for i in range(len(func)):
@@ -17,41 +18,43 @@ def place_X_in_func(func: str, num: float):
             c = str(num)
         equation += c
 
+    if get_string:
+        return equation
     ans = float(eval(equation))
     return ans
 
+def solve_line(b, m):
+    x = (0 - b) / m
+    return x
 
-def get_derivative_of_func(func: str):
-    x = sym.Symbol('x')
-    return str(sym.diff(eval(func)))
+def get_d_root(x, delta=0.000000001):
+    global func
+    x1 = x
+    x2 = x1 - delta
+    delta_y = place_X_in_func(func, x1) - place_X_in_func(func, x2)
+    delta_x = x1 - x2
+    slope = delta_y / delta_x
+    y = place_X_in_func(func, x1)
+    b = y - slope * x1
+    linear_root = solve_line(b, slope)
+    return linear_root
 
 
-def get_guess(func: str):
-    func = func.replace(' ', '')
-    for i in range(-15, 0):
-        a, b = abs(i), i
-        if place_X_in_func(func=func, num=a) > 0:
-            if place_X_in_func(func=func, num=b) < 0:
-                return float(abs(a-b) / 2)
-        elif place_X_in_func(func, a) < 0:
-            if place_X_in_func(func=func, num=b) > 0:
-                return float(abs(b - a) / 2)
+def get_root(x):
+    for i in range(100):
+        xnew = get_d_root(x)
+        if abs(xnew - x) < 0.001:
+            break
+        x = xnew
+
+    x = "{:.3f}".format(float(x))
+    return(x)
 
 
-function = get_func()  # The Func
-dx = get_derivative_of_func(function)  # The derivative
+#call the get root function one with -100, 0, 100
 
-start_time = time.time()
-x = get_guess(function)
-if x is None:
-    x = float(input("Enter a guess that close to the root of the function: "))
-for i in range(100):
-    xnew = x - (place_X_in_func(function, x)) / (place_X_in_func(dx, x))
-    if abs(xnew - x) < 0.000000000000000000000000001:
-        break
-    x = xnew
-
-print(xnew, 'found, in', i, 'iterations.')
-finish_time = time.time()
-print('\n')
-print('RunTime:', finish_time - start_time)
+roots = []
+roots.append((get_root(-100), 0))
+roots.append((get_root(0), 0))
+roots.append((get_root(100), 0))
+print(roots)
